@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
-        <title><![CDATA[Rajdeep Singh -- demo blog built with nextra and nextjs]]></title>
-        <description><![CDATA[Rajdeep Singh -- demo blog built with nextra and nextjs]]></description>
+        <title><![CDATA[sonht's blog - Collection of software development knowledge]]></title>
+        <description><![CDATA[sonht's blog - Collection of software development knowledge]]></description>
         <link>http://github.com/dylang/node-rss</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Fri, 15 Dec 2023 04:25:28 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 15 Dec 2023 07:17:53 GMT</lastBuildDate>
         <atom:link href="feed.xml" rel="self" type="application/rss+xml"/>
         <item>
             <title><![CDATA[How to use useContext with useReducer]]></title>
@@ -14,7 +14,17 @@
             <category><![CDATA[reactjs]]></category>
             <category><![CDATA[frontend]]></category>
             <dc:creator><![CDATA[sonht]]></dc:creator>
-            <pubDate>Fri, 15 Dec 2023 03:30:00 GMT</pubDate>
+            <pubDate>Fri, 15 Dec 2023 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[New way to use css variable]]></title>
+            <description><![CDATA[Css variables are amazing. The common way to use is to often set them up in :root. But they can be much more useful than that.]]></description>
+            <link>/posts/new-way-to-use-css-variable.en</link>
+            <guid isPermaLink="true">/posts/new-way-to-use-css-variable.en</guid>
+            <category><![CDATA[reactjs]]></category>
+            <category><![CDATA[frontend]]></category>
+            <dc:creator><![CDATA[sonht]]></dc:creator>
+            <pubDate>Fri, 15 Dec 2023 00:00:00 GMT</pubDate>
         </item>
     </channel>
 </rss>

@@ -2,13 +2,14 @@ const config = {
   footer: (
     <>
       <hr />
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <p>© 2023 By sonht</p>
         <div className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
           <a
             target="_blank"
             href="https://github.com/sonht1109"
             className="text-gray-500"
+            rel="noreferrer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -24,6 +25,7 @@ const config = {
             target="_blank"
             href="https://www.facebook.com/officialrajdeepsingh"
             className="text-gray-500"
+            rel="noreferrer"
           >
             <svg
               fill="currentColor"
@@ -42,6 +44,7 @@ const config = {
             target="_blank"
             href="https://twitter.com/Official_R_deep"
             className="ml-3 text-gray-500"
+            rel="noreferrer"
           >
             <svg
               fill="currentColor"
@@ -60,6 +63,7 @@ const config = {
             target="_blank"
             href="https://www.linkedin.com/in/officalrajdeepsingh/"
             className="ml-3 text-gray-500"
+            rel="noreferrer"
           >
             <svg
               fill="currentColor"
@@ -95,10 +99,6 @@ const config = {
   readMore: "Read More →",
   postFooter: null,
   darkMode: true,
-  i18n: [
-    { locale: 'en', text: 'Hello' },
-    { locale: 'vi', text: 'Chào' }
-  ]
 };
 
 export default config;
