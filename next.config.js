@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  i18n: {
+    locales: ["en", "vi"],
+    defaultLocale: "en",
+    localeDetection: false,
+  },
+};
 
-module.exports = nextConfig
+module.exports = require('nextra')({
+  theme: "nextra-theme-blog",
+  themeConfig: "./theme.config.js",
+})(nextConfig);
