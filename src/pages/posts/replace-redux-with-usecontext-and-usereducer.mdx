@@ -114,7 +114,7 @@ export default function Counter() {
 ## Note
 You should be careful with app performance at this line `<CounterContext.Provider value={{counter: state.value, dispatch}}>`. But why?
 
-Everytime `Counter.Provider` rerenders (by another state or something like that), it will create a new `value` object. That means context changes and it will lead to rerender every child component subscribing context.
+Everytime `Counter.Provider` rerenders (by another state or something like that), it will create a new `value` object. It means that context changes and it will lead to rerender every child component subscribing that context.
 
 To solve this issue, we can use `useMemo`.
 
