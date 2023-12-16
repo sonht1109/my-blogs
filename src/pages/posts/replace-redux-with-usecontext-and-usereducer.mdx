@@ -1,0 +1,149 @@
+---
+title: Replace Redux with useContext and useReducer
+author: sonht
+date: 2023-12-16
+description: Today we will learn how to use useContext with useReducer to replace Redux
+tag:
+  - reactjs
+  - frontend
+---
+# How to use useContext with useReducer
+Today we will learn how to use `useContext` with `useReducer` to replace Redux. Of course, this technique cannot replace totally Redux, but it will be super helpful for small applications where Redux can be complex and unneccessary.
+
+You can refer [useContext docs](https://react.dev/reference/react/useContext) and [useReducer docs](https://react.dev/reference/react/useReducer) here
+
+## Why do we combine `useContext` and `useReducer`?
+As I mention above, maybe you will face some cases where Redux is redundant and "overkill". We just need a more simple way to manage states and avoid prop drilling.
+`useContext` is perfect hook for those cases. But it's will be much more amazing if we use with `useReducer`.
+
+Let's get started. We will create a `counter` app.
+
+### 1. Create context
+```jsx filename="context.jsx"
+import React from "react";
+const CounterContext = React.createContext();
+```
+
+### 2. Define actions
+```js filename="actions.js"
+export const ACTION_TYPE = {
+  INCREASE = 'increase',
+  DECREASE = 'decrease'
+}
+
+const actions = {
+  increase: (payload) => ({type: ACTION_TYPE.INCREASE, payload}),
+  decrease: (payload) => ({type: ACTION_TYPE.DECREASE, payload}),
+}
+
+export default actions
+```
+
+### 3. Define reducer function
+```js filename="context.js"
+import {ACTION_TYPE} from './action.js'
+
+export const counterReducer = (state, action) => {
+  switch (action.type) {
+    case ACTION_TYPE.INCREASE:
+      return {...state, value: state.value + action.payload};
+    
+    case ACTION_TYPE.DECREASE:
+      return {...state, value: state.value - action.payload};
+
+    default:
+      return state
+  }
+}
+```
+
+### 4. Define context provider
+Continue in file `context.jsx`. We will create a provider and use `useReducer` here.
+```jsx /useReducer/ filename="context.jsx"
+const initState = {
+  value: 1
+}
+
+export const ContextProvider = ({children}) => {
+  const [state, dispatch] = React.useReducer(counterReducer, initState);
+
+  return (
+    <CounterContext.Provider value={{counter: state.value, dispatch}}>
+      {children}
+    </ContextProvider.Provider>
+  )
+}
+```
+
+### 5. Wrap components with provider
+```jsx filename="app.js"
+import React from 'react';
+import {CounterProvider} from './context.jsx'
+import Counter from './Counter.jsx'
+
+export default function App() {
+  return (
+    <CounterProvider>
+      <Counter />
+    </CounterProvider>
+  )
+}
+```
+
+### 6. Consume context in child component
+```jsx /useContext/ filename="Counter.jsx"
+import React from 'react'
+import {CounterContext} from './context.jsx'
+import actions from './actions.js'
+
+export default function Counter() {
+  const {counter, dispatch} = React.useContext(CounterContext)
+
+  return (
+    <div>
+      <p>Counter: {counter}</p>
+      <div>
+        <button onClick={() => dispatch(actions.increase(1))}>Increase by 1</button>
+        <button onClick={() => dispatch(actions.decrease(1))}>Decrease by 1</button>
+      </div>
+    </div>
+  )
+}
+```
+
+## Note
+You should be careful with app performance at this line `<CounterContext.Provider value={{counter: state.value, dispatch}}>`. But why?
+
+Everytime `Counter.Provider` rerenders (by another state or something like that), it will create a new `value` object. That means context changes and it will lead to rerender every child component subscribing context.
+
+To solve this issue, we can use `useMemo`.
+
+```jsx
+const value = React.useMemo(() => ({counter: state.value, dispatch}), [state, dispatch]);
+
+// and apply to provider
+<CounterContext.Provider value={value}>
+```
+
+Another way is to seperate context like this, which is much more complicated.
+
+```jsx
+const StateContext = React.createContext();
+const DispatchContext = React.createContext();
+
+// and apply to provider
+const CounterProvider = () => {
+  return (
+    <DispatchContext.Provider value={dispatch}>
+      <StateContext.Provider value={state.value}>
+        <App />
+      </StateContext.Provider>
+    </DispatchContext.Provider>
+  )
+}
+```
+
+## Conclusion
+Hope this technique is helpful to you guys. Consider to use this technique to replace Redux regarding your cases since Redux still has its advantages to handle complex cases. And use `useReducer` is not always neccessary.
+
+Thanks for reading.
