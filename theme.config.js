@@ -3,12 +3,12 @@ const config = {
     <>
       <hr />
       <div className="flex justify-between items-center">
-        <p>© 2023 By sonht</p>
+        <p>© 2023 - sonht. Build by <a href="https://nextra.site/docs/blog-theme/start">Nextra</a></p>
         <div className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
           <a
             target="_blank"
             href="https://github.com/sonht1109"
-            className="text-gray-500"
+            className="ml-2 text-gray-500"
             rel="noreferrer"
           >
             <svg
@@ -23,8 +23,8 @@ const config = {
           </a>
           <a
             target="_blank"
-            href="https://www.facebook.com/officialrajdeepsingh"
-            className="text-gray-500"
+            href="https://www.facebook.com/sn.hngth/"
+            className="ml-2 text-gray-500"
             rel="noreferrer"
           >
             <svg
@@ -42,8 +42,8 @@ const config = {
           </a>
           <a
             target="_blank"
-            href="https://twitter.com/Official_R_deep"
-            className="ml-3 text-gray-500"
+            href="https://twitter.com/_sonht"
+            className="ml-2 text-gray-500"
             rel="noreferrer"
           >
             <svg
@@ -61,8 +61,8 @@ const config = {
           </a>
           <a
             target="_blank"
-            href="https://www.linkedin.com/in/officalrajdeepsingh/"
-            className="ml-3 text-gray-500"
+            href="https://www.linkedin.com/in/s%C6%A1n-ho%C3%A0ng-80297120a/"
+            className="ml-2 text-gray-500"
             rel="noreferrer"
           >
             <svg
@@ -97,7 +97,7 @@ const config = {
     </>
   ),
   readMore: "Read More →",
-  postFooter: null,
+  postFooter: (<p>Thanks for reading.</p>),
   darkMode: true,
 };
 
