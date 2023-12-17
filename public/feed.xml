@@ -2,25 +2,25 @@
     <channel>
         <title><![CDATA[sonht's blog - Collection of software development knowledge]]></title>
         <description><![CDATA[sonht's blog - Collection of software development knowledge]]></description>
-        <link>http://github.com/dylang/node-rss</link>
+        <link>https://blogs.sonht.io.vn</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Fri, 15 Dec 2023 07:17:53 GMT</lastBuildDate>
-        <atom:link href="feed.xml" rel="self" type="application/rss+xml"/>
-        <item>
-            <title><![CDATA[How to use useContext with useReducer]]></title>
-            <description><![CDATA[Today we will learn how to use useContext with useReducer to avoid props drilling]]></description>
-            <link>/posts/how-to-use-usecontext-with-usereducer.en</link>
-            <guid isPermaLink="true">/posts/how-to-use-usecontext-with-usereducer.en</guid>
-            <category><![CDATA[reactjs]]></category>
-            <category><![CDATA[frontend]]></category>
-            <dc:creator><![CDATA[sonht]]></dc:creator>
-            <pubDate>Fri, 15 Dec 2023 00:00:00 GMT</pubDate>
-        </item>
+        <lastBuildDate>Sun, 17 Dec 2023 16:32:03 GMT</lastBuildDate>
+        <atom:link href="https://blogs.sonht.io.vn/feed.xml" rel="self" type="application/rss+xml"/>
         <item>
             <title><![CDATA[New way to use css variable]]></title>
             <description><![CDATA[Css variables are amazing. The common way to use is to often set them up in :root. But they can be much more useful than that.]]></description>
-            <link>/posts/new-way-to-use-css-variable.en</link>
-            <guid isPermaLink="true">/posts/new-way-to-use-css-variable.en</guid>
+            <link>/posts/new-way-to-use-css-variable</link>
+            <guid isPermaLink="true">/posts/new-way-to-use-css-variable</guid>
+            <category><![CDATA[css]]></category>
+            <category><![CDATA[frontend]]></category>
+            <dc:creator><![CDATA[sonht]]></dc:creator>
+            <pubDate>Sat, 16 Dec 2023 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Replace Redux with useContext and useReducer]]></title>
+            <description><![CDATA[Today we will learn how to use useContext with useReducer to replace Redux]]></description>
+            <link>/posts/replace-redux-with-usecontext-and-usereducer</link>
+            <guid isPermaLink="true">/posts/replace-redux-with-usecontext-and-usereducer</guid>
             <category><![CDATA[reactjs]]></category>
             <category><![CDATA[frontend]]></category>
             <dc:creator><![CDATA[sonht]]></dc:creator>
