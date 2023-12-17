@@ -1,7 +1,7 @@
 ---
 title: Replace Redux with useContext and useReducer
 author: sonht
-date: 2023-12-16
+date: 2023-12-15
 description: Today we will learn how to use useContext with useReducer to replace Redux
 tag:
   - reactjs
@@ -14,7 +14,7 @@ You can refer [useContext docs](https://react.dev/reference/react/useContext) an
 
 ## Why do we combine `useContext` and `useReducer`?
 As I mention above, maybe you will face some cases where Redux is redundant and "overkill". We just need a more simple way to manage states and avoid prop drilling.
-`useContext` is perfect hook for those cases. But it's will be much more amazing if we use with `useReducer`.
+`useContext` is perfect hook for those cases. But it's will be much more amazing if we use with `useReducer`. `useReducer` is useful for complex state transititions.
 
 Let's get started. We will create a `counter` app.
 
@@ -144,6 +144,6 @@ const CounterProvider = () => {
 ```
 
 ## Conclusion
-Hope this technique is helpful to you guys. Consider to use this technique to replace Redux regarding your cases since Redux still has its advantages to handle complex cases. And use `useReducer` is not always neccessary.
+Consider to use this technique to replace Redux regarding your cases since Redux still has its advantages to handle complex cases. And use `useReducer` is not always neccessary.
 
 Thanks for reading.
