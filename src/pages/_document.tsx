@@ -4,7 +4,6 @@ export default function Document() {
   const meta = {
     title: "Blogs created by sonht",
     description: "Collection of software development knowledge.",
-    image: "https://assets.vercel.com/image/upload/q_auto/front/vercel/dps.png",
   };
 
   return (
@@ -15,15 +14,14 @@ export default function Document() {
         <meta property="og:site_name" content={meta.title} />
         <meta property="og:description" content={meta.description} />
         <meta property="og:title" content={meta.title} />
-        <meta property="og:image" content={meta.image} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@Official_R_deep" />
+        <meta property="og:image" content="/large-preview.png" />
+        <meta name="twitter:card" content="summary_large_image`" />
+        <meta name="twitter:site" content="@_sonht" />
         <meta name="twitter:title" content={meta.title} />
         <meta name="twitter:description" content={meta.description} />
-        <meta name="twitter:image" content={meta.image} />
+        <meta name="twitter:image" content="/large-preview.png" />
 
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
       </Head>
       <body>
         <Main />
