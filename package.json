@@ -10,6 +10,7 @@
     "feed": "node ./scripts/gen-rss.js"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.1.1",
     "gray-matter": "^4.0.3",
     "next": "13.1.1",
     "nextra": "^2.13.2",
