@@ -89,7 +89,7 @@ const config = {
       </div>
     </>
   ),
-  head: ({ title, meta }) => (
+  head: ({ meta }) => (
     <>
       {meta.description && (
         <meta name="description" content={meta.description} />
