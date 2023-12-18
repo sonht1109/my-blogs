@@ -3,5 +3,5 @@ const nextConfig = {};
 
 module.exports = require("nextra")({
   theme: "nextra-theme-blog",
-  themeConfig: "./theme.config.js",
+  themeConfig: "./theme.config.jsx",
 })(nextConfig);
