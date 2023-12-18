@@ -7,7 +7,7 @@
     "build": "yarn feed && next build",
     "start": "next start",
     "lint": "next lint",
-    "feed": "node ./scripts/gen-rss.js"
+    "feed": "node ./scripts/gen-rss.js && node ./scripts/gen-sitemap.js"
   },
   "dependencies": {
     "@vercel/analytics": "^1.1.1",
