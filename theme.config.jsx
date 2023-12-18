@@ -1,3 +1,5 @@
+import CommentSection from '@/components/comment-section'
+
 const config = {
   footer: (
     <>
@@ -97,7 +99,12 @@ const config = {
     </>
   ),
   readMore: "Read More →",
-  postFooter: (<p>Thanks for reading.</p>),
+  postFooter: (
+    <>
+      <p>Thanks for reading. Happy to receive your comments.</p>
+      <CommentSection />
+    </>
+  ),
   darkMode: true,
 };
 

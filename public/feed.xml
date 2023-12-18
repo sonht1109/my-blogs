@@ -4,7 +4,7 @@
         <description><![CDATA[sonht's blog - Collection of software development knowledge]]></description>
         <link>https://blogs.sonht.io.vn</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Mon, 18 Dec 2023 02:32:07 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 18 Dec 2023 16:25:46 GMT</lastBuildDate>
         <atom:link href="https://blogs.sonht.io.vn/feed.xml" rel="self" type="application/rss+xml"/>
         <item>
             <title><![CDATA[New way to use css variable]]></title>
