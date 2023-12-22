@@ -1,0 +1,67 @@
+---
+title: Be careful with try/catch and async/await
+author: sonht
+date: 2023-12-22
+description: Sometimes try/catch and async/await may not work as we expect.
+tag:
+  - javascript
+  - nodejs
+  - promise
+keywords:
+  - nodejs
+  - node
+  - js
+  - javascript
+  - async
+  - await
+  - try
+  - catch
+  - es6
+---
+Sometimes try/catch and async/await may not work as we expect. Let take an example
+```js filename="index.js" showLineNumbers copy
+const promise = async () => {
+  try {
+    return Promise.reject("Error message");
+  } catch (e) {
+    console.log({ "Error catched in promise": e });
+  }
+};
+
+(async () => {
+  try {
+    await promise();
+  } catch (e) {
+    console.log({ "Error catched in main": e });
+  }
+})();
+```
+We have a `promise` which is rejected. The error will be catched, but let's try to guess which line will catch the error.
+
+Run file with command below
+```bash copy
+node index.js
+```
+you will see that the error is catched `in main`
+```bash
+{ 'Error catched in main': 'Error message' }
+```
+
+But let's change a little bit. We will add `await` in `promise` function
+```js showLineNumbers filename="index.js" /await/1 {3}
+const promise = async () => {
+  try {
+    return await Promise.reject("Error message");
+  } catch (e) {
+    console.log({ "Error catched in promise": e });
+  }
+};
+```
+
+Run the file again and see the result
+```bash
+{ 'Error catched in promise': 'Error message' }
+```
+
+That's it. The result has changed.
+In real world, this case can lead to some unexpected results so just be aware all of your code lines.

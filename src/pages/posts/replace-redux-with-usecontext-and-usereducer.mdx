@@ -6,6 +6,7 @@ description: Today we will learn how to use useContext with useReducer to replac
 tag:
   - reactjs
   - frontend
+  - redux
 keywords:
   - reactjs
   - frontend
@@ -18,8 +19,6 @@ keywords:
 # How to use useContext with useReducer
 Today we will learn how to use `useContext` with `useReducer` to replace Redux. Of course, this technique cannot replace totally Redux, but it will be super helpful for small applications where Redux can be complex and unneccessary.
 
-You can refer [useContext docs](https://react.dev/reference/react/useContext) and [useReducer docs](https://react.dev/reference/react/useReducer) here
-
 ## Why do we combine `useContext` and `useReducer`?
 As I mention above, maybe you will face some cases where Redux is redundant and "overkill". We just need a more simple way to manage states and avoid prop drilling.
 `useContext` is perfect hook for those cases. But it's will be much more amazing if we use with `useReducer`. `useReducer` is useful for complex state transititions.
@@ -27,13 +26,13 @@ As I mention above, maybe you will face some cases where Redux is redundant and 
 Let's get started. We will create a `counter` app.
 
 ### 1. Create context
-```jsx filename="context.jsx"
+```jsx filename="context.jsx" showLineNumbers copy
 import React from "react";
 const CounterContext = React.createContext();
 ```
 
 ### 2. Define actions
-```js filename="actions.js"
+```js filename="actions.js" showLineNumbers copy
 export const ACTION_TYPE = {
   INCREASE = 'increase',
   DECREASE = 'decrease'
@@ -48,7 +47,7 @@ export default actions
 ```
 
 ### 3. Define reducer function
-```js filename="context.js"
+```js filename="context.js" showLineNumbers copy
 import {ACTION_TYPE} from './action.js'
 
 export const counterReducer = (state, action) => {
@@ -67,7 +66,7 @@ export const counterReducer = (state, action) => {
 
 ### 4. Define context provider
 Continue in file `context.jsx`. We will create a provider and use `useReducer` here.
-```jsx /useReducer/ filename="context.jsx"
+```jsx showLineNumbers /useReducer/ filename="context.jsx" copy
 const initState = {
   value: 1
 }
@@ -84,7 +83,7 @@ export const ContextProvider = ({children}) => {
 ```
 
 ### 5. Wrap components with provider
-```jsx filename="app.js"
+```jsx filename="app.jsx" showLineNumbers copy
 import React from 'react';
 import {CounterProvider} from './context.jsx'
 import Counter from './Counter.jsx'
@@ -99,7 +98,7 @@ export default function App() {
 ```
 
 ### 6. Consume context in child component
-```jsx /useContext/ filename="Counter.jsx"
+```jsx showLineNumbers /useContext/ filename="Counter.jsx" copy
 import React from 'react'
 import {CounterContext} from './context.jsx'
 import actions from './actions.js'
@@ -126,7 +125,7 @@ Everytime `Counter.Provider` rerenders (by another state or something like that)
 
 To solve this issue, we can use `useMemo`.
 
-```jsx
+```jsx showLineNumbers copy
 const value = React.useMemo(() => ({counter: state.value, dispatch}), [state, dispatch]);
 
 // and apply to provider
@@ -135,7 +134,7 @@ const value = React.useMemo(() => ({counter: state.value, dispatch}), [state, di
 
 Another way is to seperate context like this, which is much more complicated.
 
-```jsx
+```jsx showLineNumbers copy
 const StateContext = React.createContext();
 const DispatchContext = React.createContext();
 
@@ -153,3 +152,7 @@ const CounterProvider = () => {
 
 ## Conclusion
 Consider to use this technique to replace Redux regarding your cases since Redux still has its advantages to handle complex cases. And use `useReducer` is not always neccessary.
+
+## Reference
+- [useContext](https://react.dev/reference/react/useContext)
+- [useReducer](https://react.dev/reference/react/useReducer)

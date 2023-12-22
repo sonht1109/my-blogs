@@ -5,7 +5,7 @@ const config = {
     <>
       <hr />
       <div className="flex justify-between items-center">
-        <p>© 2023 - sonht. Built by <a href="https://nextra.site/docs/blog-theme/start">Nextra</a></p>
+        <p>© 2023 - {new Date().getFullYear()} by sonht</p>
         <div className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
           <a
             target="_blank"
