@@ -5,7 +5,7 @@ const config = {
     <>
       <hr />
       <div className="flex justify-between items-center">
-        <p>© 2023 - {new Date().getFullYear()} by sonht</p>
+        <p>© 2023 - {new Date().getFullYear()} by sonht1109</p>
         <div className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
           <a
             target="_blank"
@@ -44,7 +44,7 @@ const config = {
           </a>
           <a
             target="_blank"
-            href="https://twitter.com/_sonht"
+            href="https://twitter.com/sonht1109"
             className="ml-2 text-gray-500"
             rel="noreferrer"
           >
@@ -63,7 +63,7 @@ const config = {
           </a>
           <a
             target="_blank"
-            href="https://www.linkedin.com/in/s%C6%A1n-ho%C3%A0ng-80297120a/"
+            href="https://www.linkedin.com/in/sonht1109/"
             className="ml-2 text-gray-500"
             rel="noreferrer"
           >
