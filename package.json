@@ -1,7 +1,7 @@
 {
   "name": "my-blogs",
   "version": "0.2.0",
-  "private": true,
+  "private": false,
   "author": "sonht1109",
   "homepage": "https://blogs.sonht.io.vn",
   "scripts": {
@@ -14,7 +14,6 @@
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.10.0",
     "@vercel/analytics": "^1.1.1",
-    "@vercel/speed-insights": "^1.0.2",
     "gray-matter": "^4.0.3",
     "next": "13.1.1",
     "nextra": "^2.13.2",
