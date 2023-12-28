@@ -96,6 +96,11 @@ const config = {
       )}
       {meta.keywords && <meta name="keywords" content={meta.keywords} />}
       {meta.author && <meta name="author" content={meta.author} />}
+      {meta.title && <meta property="og:title" content={meta.title} />}
+      {meta.title && <meta property="twitter:title" content={meta.title} />}
+      {meta.description && <meta property="og:description" content={meta.description} />}
+      {meta.description && <meta property="twitter:description" content={meta.description} />}
+      {meta.description && <meta name="description" content={meta.description} />}
     </>
   ),
   readMore: "Read More →",
