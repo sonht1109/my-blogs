@@ -41,10 +41,10 @@ We must hear about __Event loop__. __Event loop__ is the secret mechanism behind
 ![Event loop](../../../public/images/perharps-you-missunderstood-settimeout-1.png)
 Basically, when a task is executed, it will be pushed into __Call stack__.
 If it is __synchronous__ task, it will be executed immediately and popped out of stack.
-If it is __asynchronous__ task like `setTimeout, setInterval, fetch, ...` it will be assigned to browser and browser will pick other threads to execute it.
+If it is __asynchronous__ task like `setTimeout`, `setInterval`, `fetch`, ... it will be assigned to browser and browser will pick other threads to execute it.
 <FYI type="warning">
   <FYI.Container>
-    <p>Functions like `setTimeout, setInterval, fetch, ...` are not available in JS Engine. They are a part of JS runtime APIs.</p>
+    <p>Functions like `setTimeout`, `setInterval`, `fetch`, ... are not available in JS Engine. They are a part of JS runtime APIs.</p>
   </FYI.Container>
 </FYI>
 After being executed, its callback will be pushed into __Task queue__. This is when __Event loop__ does its job.
