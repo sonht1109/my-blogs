@@ -32,19 +32,19 @@ Some logic that can take a long time to execute like I/O, network, ... will be e
 They're __asynchronous__ tasks.
 
 ## What is Event loop?
-We must hear about __Event loop__. __Event loop__ is the secret mechanism behind how JS code is executed. Image below describes how __Event loop__ works in browser.
+We must hear about __Event loop__. __Event loop__ is the secret mechanism behind how JS code is executed. Image below describes how __Event loop__ works in __browser__.
 <FYI type="warning">
   <FYI.Container>
-    <p>__Event loop__ in browser is different from one in NodeJS.</p>
+    <p>__Event loop__ in browser is different from one in NodeJS. We will mention __Event loop__ in browser in example below.</p>
   </FYI.Container>
 </FYI>
 ![Event loop](../../../public/images/perharps-you-missunderstood-settimeout-1.png)
 Basically, when a task is executed, it will be pushed into __Call stack__.
 If it is __synchronous__ task, it will be executed immediately and popped out of stack.
-If it is __asynchronous__ task like setTimeout, setInterval, fetch, ... it will be assigned to browser and browser will pick other threads to execute it.
+If it is __asynchronous__ task like `setTimeout, setInterval, fetch, ...` it will be assigned to browser and browser will pick other threads to execute it.
 <FYI type="warning">
   <FYI.Container>
-    <p>setTimeout, setInterval, fetch, ... are not available in JS Engine. They are a part of Web APIs.</p>
+    <p>Functions like `setTimeout, setInterval, fetch, ...` are not available in JS Engine. They are a part of JS runtime APIs.</p>
   </FYI.Container>
 </FYI>
 After being executed, its callback will be pushed into __Task queue__. This is when __Event loop__ does its job.
