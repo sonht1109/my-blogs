@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-a {
-  /* text-decoration: none!important; */
+.fyi-content-container p:last-child {
+  margin: 0;
 }
