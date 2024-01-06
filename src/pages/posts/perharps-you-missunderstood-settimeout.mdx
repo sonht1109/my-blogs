@@ -1,0 +1,68 @@
+---
+title: Perharps you missunderstood settimeout
+author: sonht1109
+date: 2024-01-06
+description: settimeout is used for executing some logic after a certain time. But exactly how long do we have to wait for that logic to be executed?
+tag:
+  - settimeout
+  - javascript
+keywords:
+  - settimeout
+  - nodejs
+  - browser api
+  - javascript
+---
+import FYI from '@/components/fyi'
+
+`settimeout` is used for executing some logic after a certain time. But exactly how long do we have to wait for that logic to be executed?
+
+## How does JS engine execute our code?
+JS engine executes code in __single thread__ (main thread). It has something called __Call stack__.
+Code will be executed in a last-in, first-out (LIFO) order in which it is called. It means that, if some logic is being executed, other logic will have to wait.
+```javascript
+console.log(1);
+console.log(2);
+console.log(3);
+// Output
+1
+2
+3
+```
+Some logic that can take a long time to execute like I/O, network, ... will be executed in other threads to prevent blocking main thread.
+They're __asynchronous__ tasks.
+
+## What is Event loop?
+We must hear about __Event loop__. __Event loop__ is the secret mechanism behind how JS code is executed. Image below describes how __Event loop__ works in browser.
+<FYI type="warning">
+  <FYI.Container>
+    <p>__Event loop__ in browser is different from one in NodeJS.</p>
+  </FYI.Container>
+</FYI>
+![Event loop](../../../public/images/perharps-you-missunderstood-settimeout-1.png)
+Basically, when a task is executed, it will be pushed into __Call stack__.
+If it is __synchronous__ task, it will be executed immediately and popped out of stack.
+If it is __asynchronous__ task like setTimeout, setInterval, fetch, ... it will be assigned to browser and browser will pick other threads to execute it.
+<FYI type="warning">
+  <FYI.Container>
+    <p>setTimeout, setInterval, fetch, ... are not available in JS Engine. They are a part of Web APIs.</p>
+  </FYI.Container>
+</FYI>
+After being executed, its callback will be pushed into __Task queue__. This is when __Event loop__ does its job.
+Whenever __Call stack__ is empty, it will pick the first task in __Task queue__ into __Call stack__ to execute.
+
+__Event loop__ is infinite loop which monitors the __Call stack__ and __Task queue__.
+
+## The moment of the truth
+As we know above, __a queued task is only picked and executed only when the __Call stack__ is empty__.
+So, if we call a `setTimeout` function
+```javascript
+setTimeout(cb, 100)
+```
+After 100ms, `cb` will be pushed into __Task queue__ and ready to execute in __Call stack__.
+But if __Call stack__ is handling task `A` which takes about 1 min, `cb` will have to wait for 1 min as well.
+
+## Conclusion
+Hope this post help you gain a deeper insight about `setTimeout`.
+
+## Reference
+- [Webuild - Advent of Sharing](https://github.com/webuild-community/advent-of-sharing/blob/main/2022/day-17.md)

@@ -4,9 +4,9 @@ author: sonht1109
 date: 2023-12-15
 description: Today we will learn how to use useContext with useReducer to replace Redux
 tag:
+  - redux
   - reactjs
   - frontend
-  - redux
 keywords:
   - reactjs
   - frontend
@@ -16,11 +16,12 @@ keywords:
   - react hooks
   - replace redux
 ---
-# How to use useContext with useReducer
-Today we will learn how to use `useContext` with `useReducer` to replace Redux. Of course, this technique cannot replace totally Redux, but it will be super helpful for small applications where Redux can be complex and unneccessary.
+Today we will learn how to use `useContext` with `useReducer` to replace Redux.
+
+Of course, this technique cannot replace totally Redux, but it will be super helpful for small applications where Redux can be complex and unneccessary.
 
 ## Why do we combine `useContext` and `useReducer`?
-As I mention above, maybe you will face some cases where Redux is redundant and "overkill". We just need a more simple way to manage states and avoid prop drilling.
+As I mention above, maybe you will face some cases where Redux is redundant and __overkill__. We just need a more simple way to manage states and avoid prop drilling.
 `useContext` is perfect hook for those cases. But it's will be much more amazing if we use with `useReducer`. `useReducer` is useful for complex state transititions.
 
 Let's get started. We will create a `counter` app.
