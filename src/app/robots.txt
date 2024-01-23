@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://blogs.sonht.io.vn/sitemap.xml
