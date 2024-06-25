@@ -1,2 +1,1 @@
-# My blogs
-This is only some collected knowledge from varied sources. If I know something, you will know that thing.
+<h1><a href="https://blogs.sonht.io.vn">Check out my blogs here</a></h1>
