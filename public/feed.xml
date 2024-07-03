@@ -1,11 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
-        <title><![CDATA[sonht's blog - Collection of software development knowledge]]></title>
-        <description><![CDATA[sonht's blog - Collection of software development knowledge]]></description>
+        <title><![CDATA[sonht1109's blog - Collection of software development knowledge]]></title>
+        <description><![CDATA[sonht1109's blog - Collection of software development knowledge]]></description>
         <link>https://blogs.sonht.io.vn</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Mon, 18 Dec 2023 16:25:46 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 03 Jul 2024 08:53:19 GMT</lastBuildDate>
         <atom:link href="https://blogs.sonht.io.vn/feed.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[Be careful with try/catch and async/await]]></title>
+            <description><![CDATA[Sometimes try/catch and async/await may not work as we expect.]]></description>
+            <link>/posts/be-careful-with-try-catch-and-async-await</link>
+            <guid isPermaLink="true">/posts/be-careful-with-try-catch-and-async-await</guid>
+            <category><![CDATA[javascript]]></category>
+            <category><![CDATA[nodejs]]></category>
+            <category><![CDATA[promise]]></category>
+            <dc:creator><![CDATA[sonht1109]]></dc:creator>
+            <pubDate>Fri, 22 Dec 2023 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Cache problem - cache penetration]]></title>
+            <description><![CDATA[Cache penetration is one of problem we should consider first when utilizing cache in our application.]]></description>
+            <link>/posts/cache-penetration</link>
+            <guid isPermaLink="true">/posts/cache-penetration</guid>
+            <category><![CDATA[cache]]></category>
+            <category><![CDATA[backend]]></category>
+            <category><![CDATA[redis]]></category>
+            <dc:creator><![CDATA[sonht1109]]></dc:creator>
+            <pubDate>Tue, 02 Jul 2024 00:00:00 GMT</pubDate>
+        </item>
         <item>
             <title><![CDATA[New way to use css variable]]></title>
             <description><![CDATA[Css variables are amazing. The common way to use is to often set them up in :root. But they can be much more useful than that.]]></description>
@@ -13,7 +35,7 @@
             <guid isPermaLink="true">/posts/new-way-to-use-css-variable</guid>
             <category><![CDATA[css]]></category>
             <category><![CDATA[frontend]]></category>
-            <dc:creator><![CDATA[sonht]]></dc:creator>
+            <dc:creator><![CDATA[sonht1109]]></dc:creator>
             <pubDate>Sat, 16 Dec 2023 00:00:00 GMT</pubDate>
         </item>
         <item>
@@ -23,7 +45,8 @@
             <guid isPermaLink="true">/posts/replace-redux-with-usecontext-and-usereducer</guid>
             <category><![CDATA[reactjs]]></category>
             <category><![CDATA[frontend]]></category>
-            <dc:creator><![CDATA[sonht]]></dc:creator>
+            <category><![CDATA[redux]]></category>
+            <dc:creator><![CDATA[sonht1109]]></dc:creator>
             <pubDate>Fri, 15 Dec 2023 00:00:00 GMT</pubDate>
         </item>
     </channel>
