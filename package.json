@@ -4,6 +4,7 @@
   "private": false,
   "author": "sonht1109",
   "homepage": "https://blogs.sonht.io.vn",
+  "packageManager": "yarn@1.22.19",
   "scripts": {
     "dev": "next dev",
     "build": "yarn feed && next build",

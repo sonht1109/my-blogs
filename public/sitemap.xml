@@ -1,26 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
+          <loc>https://blogs.sonht.io.vn/about</loc>
+          <lastmod>2024-07-03</lastmod>
+          <changefreq>weekly</changefreq>
+          <priority>0.8</priority>
+        </url>
+<url>
             <loc>https://blogs.sonht.io.vn</loc>
-            <lastmod>2023-12-18</lastmod>
+            <lastmod>2024-07-03</lastmod>
             <changefreq>weekly</changefreq>
             <priority>1.0</priority>
           </url>
 <url>
           <loc>https://blogs.sonht.io.vn/posts</loc>
-          <lastmod>2023-12-18</lastmod>
+          <lastmod>2024-07-03</lastmod>
+          <changefreq>weekly</changefreq>
+          <priority>0.8</priority>
+        </url>
+<url>
+          <loc>https://blogs.sonht.io.vn/posts/be-careful-with-try-catch-and-async-await</loc>
+          <lastmod>2024-07-03</lastmod>
+          <changefreq>weekly</changefreq>
+          <priority>0.8</priority>
+        </url>
+<url>
+          <loc>https://blogs.sonht.io.vn/posts/cache-penetration</loc>
+          <lastmod>2024-07-03</lastmod>
           <changefreq>weekly</changefreq>
           <priority>0.8</priority>
         </url>
 <url>
           <loc>https://blogs.sonht.io.vn/posts/new-way-to-use-css-variable</loc>
-          <lastmod>2023-12-18</lastmod>
+          <lastmod>2024-07-03</lastmod>
           <changefreq>weekly</changefreq>
           <priority>0.8</priority>
         </url>
 <url>
           <loc>https://blogs.sonht.io.vn/posts/replace-redux-with-usecontext-and-usereducer</loc>
-          <lastmod>2023-12-18</lastmod>
+          <lastmod>2024-07-03</lastmod>
           <changefreq>weekly</changefreq>
           <priority>0.8</priority>
         </url>
