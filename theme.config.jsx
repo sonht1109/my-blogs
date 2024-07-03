@@ -106,7 +106,8 @@ const config = {
   readMore: "Read More →",
   postFooter: (
     <>
-      <p>Thanks for reading. Happy to receive your comments.</p>
+      <hr />
+      <p>Thank you for reading. Welcome all your comments/feedbacks.</p>
       <CommentSection />
     </>
   ),
