@@ -29,7 +29,7 @@ This is one simple way we often cache in our application.
 
 Whenever request comes, we will search in cache first. If existed, we return data. Otherwise, we will find in our database, and then **cache** it and return data. So every following request on the same resource will hit cache instead of our database.
 
-But let's consider when data is not found at cache, and data is not found in database as well.
+But let's imagine that when data is not found at cache, and data is not found in database as well.
 ![new way to use css variable](../../../public/images/cache-penetration-2.png)
 The searched data is empty, and we may think "Oh it's empty, nothing to cache so just return to our client", so every following request on the same resource will hit our database and yep, that's the problem we have mentioned above.
 
@@ -38,7 +38,7 @@ The searched data is empty, and we may think "Oh it's empty, nothing to cache so
 Easiest solution here is we have to cache those **empty data** as well. Remember to set ttl properly.
 ![new way to use css variable](../../../public/images/cache-penetration-3.png)
 
-Another solution can be consider is to use [**Bloom Filter**](https://en.wikipedia.org/wiki/Bloom_filter). I don't know much about this algorithm so you guys can discover it by yourself haha.
+Another solution can be considered is to use [**Bloom Filter**](https://en.wikipedia.org/wiki/Bloom_filter). But I don't know much about this algorithm so will let you guys discover it by yourself haha.
 
 ## Conclusion
 Be aware of cache problems will help us build a better application. Hope this will help.
