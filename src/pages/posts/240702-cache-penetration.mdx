@@ -6,7 +6,6 @@ description: Cache penetration is one of problem we should consider first when u
 tag:
   - cache
   - backend
-  - redis
 keywords:
   - cache
   - redis
@@ -18,9 +17,7 @@ Cache penetration is one of very first problem we should consider when utilizing
 
 ## What is cache penetration?
 
-This is a scenario where data to be searched doesn't exist in our database and those empty data is not **cached** as well, so database always gets hit on every search.
-
-This scenario can be leveraged to crash our system by spaming a large number of requests.
+This is a scenario where data to be searched doesn't exist in our database and those empty data is not **cached** as well, so **database always gets hit on every search on same resource** and even cause it to crash.
 
 ## Example
 
@@ -42,3 +39,6 @@ Another solution can be considered is to use [**Bloom Filter**](https://en.wikip
 
 ## Conclusion
 Be aware of cache problems will help us build a better application. Hope this will help.
+
+## Reference
+- [Tips Javascript](https://www.youtube.com/watch?v=_15A-fkBP7o)
