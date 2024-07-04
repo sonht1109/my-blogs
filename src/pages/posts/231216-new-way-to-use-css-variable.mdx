@@ -12,7 +12,11 @@ keywords:
   - css variable
   - html
 ---
-Css variables are amazing. The common way to use is to often set them up in **_:root_**. But they can be much more useful than that.
+import { PhotoView } from 'react-photo-view'
+
+export const images = ['/images/new-way-to-use-css-variable.png']
+
+Css variables are amazing. The common way to use is to often set them up in **:root**. But they can be much more useful than that.
 
 Let's take an example
 
@@ -43,7 +47,7 @@ Let's take an example
 ```
 
 And here we go, we get the result like this
-![new way to use css variable](../../../public/images/new-way-to-use-css-variable.png)
+<PhotoView src={images[0]}><img src={images[0]} alt="new way to use css variable" /></PhotoView>
 
 ## Conclusion
-This technique gives us a more flexible way to use css variable with class. I think it will be super helpful.
+This technique gives us a more flexible way to use css variable with class.

@@ -11,6 +11,10 @@ keywords:
   - redis
   - cache penetration
 ---
+import { PhotoView } from 'react-photo-view'
+
+export const images = ["/images/cache-penetration-1.png", "/images/cache-penetration-2.png", "/images/cache-penetration-3.png"];
+
 Cache is one of the most important part when building highly available application. It provides a high-performance way to get frequently accessed data and reduce traffic to our database.
 
 Cache penetration is one of very first problem we should consider when utilizing cache in our application.
@@ -22,18 +26,18 @@ This is a scenario where data to be searched doesn't exist in our database and t
 ## Example
 
 This is one simple way we often cache in our application.
-![new way to use css variable](../../../public/images/cache-penetration-1.png)
+<PhotoView src={images[0]}><img src={images[0]} alt="new way to use css variable" /></PhotoView>
 
 Whenever request comes, we will search in cache first. If existed, we return data. Otherwise, we will find in our database, and then **cache** it and return data. So every following request on the same resource will hit cache instead of our database.
 
 But let's imagine that when data is not found at cache, and data is not found in database as well.
-![new way to use css variable](../../../public/images/cache-penetration-2.png)
+<PhotoView src={images[1]}><img src={images[1]} alt="new way to use css variable" /></PhotoView>
 The searched data is empty, and we may think "Oh it's empty, nothing to cache so just return to our client", so every following request on the same resource will hit our database and yep, that's the problem we have mentioned above.
 
 ## Solution
 
 Easiest solution here is we have to cache those **empty data** as well. Remember to set ttl properly.
-![new way to use css variable](../../../public/images/cache-penetration-3.png)
+<PhotoView src={images[2]}><img src={images[2]} alt="new way to use css variable" /></PhotoView>
 
 Another solution can be considered is to use [**Bloom Filter**](https://en.wikipedia.org/wiki/Bloom_filter). But I don't know much about this algorithm so will let you guys discover it by yourself haha.
 
