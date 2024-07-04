@@ -13,6 +13,9 @@ keywords:
   - javascript
 ---
 import FYI from '@/components/fyi'
+import { PhotoView } from 'react-photo-view'
+
+export const images = ['/images/perharps-you-missunderstood-settimeout-1.png']
 
 `setTimeout` is used for executing some logic after a certain time. But exactly how long do we have to wait for that logic to be executed?
 
@@ -38,7 +41,8 @@ We must hear about __Event loop__. __Event loop__ is the secret mechanism behind
     <p>__Event loop__ in browser is different from one in NodeJS. We will mention __Event loop__ in browser in example below.</p>
   </FYI.Container>
 </FYI>
-![Event loop](../../../public/images/perharps-you-missunderstood-settimeout-1.png)
+<PhotoView src={images[0]}><img src={images[0]} alt="perhaps you missunderstood settimeout" /></PhotoView>
+
 Basically, when a task is executed, it will be pushed into __Call stack__.
 If it is __synchronous__ task, it will be executed immediately and popped out of stack.
 If it is __asynchronous__ task like `setTimeout`, `setInterval`, `fetch`, ... it will be assigned to browser and browser will pick other threads to execute it.
