@@ -1,0 +1,127 @@
+---
+title: My lesson learned with distributed lock
+author: sonht1109
+date: 2024-09-01
+description: Distributed lock really helps me to solve my issues, but it doesn't mean the issue will be solved immediately if I use distributed lock.
+tag:
+  - distributed lock
+  - redis
+keywords:
+  - redis
+  - lock
+  - distributed lock
+  - redlock
+---
+import { PhotoView } from 'react-photo-view'
+
+export const images = [
+"/images/my-lesson-learned-with-distributed-lock-1.png",
+"/images/my-lesson-learned-with-distributed-lock-2.png",
+"/images/my-lesson-learned-with-distributed-lock-3.png",
+"/images/my-lesson-learned-with-distributed-lock-4.png",
+"/images/my-lesson-learned-with-distributed-lock-5.png",
+"/images/my-lesson-learned-with-distributed-lock-6.png",
+"/images/my-lesson-learned-with-distributed-lock-7.png"
+];
+
+Distributed lock really helps me to solve my issues, but it doesn't mean the issue will be solved immediately if I use distributed lock.
+
+## System Overview
+
+Okay. Image that, Im working on the feature that distributes voucher to user. Like, if user signs up, they will receive the voucher item.
+The flow is simplified as the picture below.
+
+<PhotoView src={images[0]}><img src={images[0]} alt="my lesson learned with distributed lock" /></PhotoView>
+
+- (1) Mobile calls `signup` API to `Auth Service`.
+- (2) `Auth Service` does its stuff then pushes message to queue. The messasge will be like `{"user_id": <user_id>}`.
+- (3) The message then will be consumed by `Voucher Service` to distribute the voucher to user.
+- (4) Finally, send notification to user to tell they that their voucher is ready to use.
+
+So the input is `user_id`, output is voucher item distributed to that user.
+
+Let's see how `Voucher Service` distribute voucher item to user. In real world, **this service is so complicated that none of us really knows how it works** hahaha, but just imagine that we have one table called `voucher_item`.
+
+`voucher_item`
+|id|user_id|code|
+|-|-|-|
+|1|1|BV1LN2KJ|
+|2|null|ASXKKQRG|
+
+If `user_id` is not null (eg: 1), it means `user 1` has voucher item, in this case `user 1` has `voucher item 1`. Otherwise, the voucher is waiting to claim.
+
+So when `Voucher Service` consumes message, it will query the **first** valid voucher which has `{user_id: null}` and then updates that voucher with corresponding `user_id`. Done.
+
+<PhotoView src={images[1]}><img src={images[1]} alt="my lesson learned with distributed lock" /></PhotoView>
+
+## Scenario
+
+I receive my task related to voucher, but it's not about signup. It's about employee import, like, admin will import list of employees into system and then give all of them vouchers.
+Actually, they are quite the same, but the input now will be array of users instead of one user.
+
+But, as I said, the `Voucher Service` is too complicated, it will not be smart to implement another function to handle that. The easiest way that I come up with is, we will push a bunch of message into queue.
+Let's say, admin imports 10 users from 1 to 10, so we will push 10 separate messages into queue to utilize available logic.
+
+<PhotoView src={images[2]}><img src={images[2]} alt="my lesson learned with distributed lock" /></PhotoView>
+
+Okay, let's keep other steps (3),(4) as now, no need to change anything. We have queue, messages will be handled sequentially. I test that on my local machine and it works perfectly, let's ask QA team to test. Hahaha easy easy.
+
+But then, "Nah, please fix that. It doesn't work on dev env", QA team said.
+
+*dev env is the env that QA uses for testing.
+
+## What's wrong here?
+
+Based on QA team's actual result, they test with only 2 employees:
+
+`employees`
+|id|
+|-|
+|1|
+|2|
+- `user 1` doesn't receive voucher, but receives notification.
+- `user 2` receives voucher, but doesn't receive notification.
+
+Hey hey, are you kidding me? Sounds magic here. But I tested and it worked perfectly on my local machine, right.
+
+Let's see. If `user 1` already receives notification, it means, the voucher is already claimed by `user 1` (see the logic flow above). But somehow, `user 2` claims the voucher of `user 1`. Then I realize that, the biggest differences between my local machine and dev env is that dev env has 2 pods of `Voucher Service` (like auto scale). Okay, let's update the diagram.
+<PhotoView src={images[3]}><img src={images[3]} alt="my lesson learned with distributed lock" /></PhotoView>
+
+Much clearer now. 2 messages can be handled almost at the same time, and 2 message handlers can point to the same voucher item.
+- 1st message is consumed, it gets `voucher_item 1` from database.
+- 2nd message is consumed right after that, it gets `voucher_item 1` database too since 1st message is still in progress.
+- 1st message finishes handling, update `voucher_item 1` with `user 1`. Then send notification to `user 1`.
+- 2st message finishes handling, update `voucher_item 1` with `user 2`. But I'm still not sure why `user 2` doesn't receive notification.
+
+Okay, now our issue is, 2 processes both get access to the same resource. Definitely, **distributed lock** will save us.
+
+Actually, I intended to implement distributed lock by myself using **Redis** but then I was recommended using [**Redlock**](https://redis.io/docs/latest/develop/use/patterns/distributed-locks/) which works perfectly with multiple Redis nodes.
+
+Let's apply lock into `Voucher Service`. But where should I put the lock? It should be after getting voucher item, since I can use `voucher_item.id` to prevent it from being handled by multiple processes.
+<PhotoView src={images[4]}><img src={images[4]} alt="my lesson learned with distributed lock" /></PhotoView>
+- 1st message is consumed, it gets `voucher_item 1`. It tries to acquire the lock `voucher_item:1` and hold it.
+- 2nd message is consumed, it gets `voucher_item 1`. It tries to acquire the lock `voucher_item:1` but not succeed since it's being held by 1st. At this step, we can retry 2nd message so that it can be handled with another voucher item.
+- After 1st message finishes, let's release the lock. It's useless now.
+Sounds good. Commit code and assign to QA team again.
+
+One more time, QA said "Nah sir, the issue is still happening. Please fix that."
+
+## What's wrong again?
+Is redlock lying me? Nah. Let's see what happens. Since 2 messages can be handled almost at the same time, I come up with this theory.
+<PhotoView src={images[5]}><img src={images[5]} alt="my lesson learned with distributed lock" /></PhotoView>
+- 1st message is consumed, it gets `voucher_item 1` and hold lock.
+- 2nd message is consumed, it gets `voucher_item 1` right **before** 1st finishes updating `voucher_item 1`.
+- 1st finishes handling, it releases the lock.
+- 2nd acquires lock and then updates `voucher_item 1`.
+Yahhhhhh. Reasonable. The process that acquires lock and update voucher item is too fast, it means the lock is only hold within short time. 
+
+Okay. let's give it some extra time before releasing the lock and the issue should be solved now.
+<PhotoView src={images[6]}><img src={images[6]} alt="my lesson learned with distributed lock" /></PhotoView>
+
+I change the lock release time from `t1` to `t2`. But you may ask, what time period (t2 - t1) is enough? I think it should be at least equal to the execution time of logic between acquiring lock and releasing lock. For example, the logic above takes 10ms to acquired lock + update voucher item + release lock, then t2 - t1 should >= 4ms.
+
+## Conclusion
+That's all I want to share. The lesson learned here is, should choose the lock release time carefully, it will save your life.
+
+## Reference
+- [Redlock](https://www.youtube.com/watch?v=3uNsKNCegcM&list=LL&index=3&t=653s)
