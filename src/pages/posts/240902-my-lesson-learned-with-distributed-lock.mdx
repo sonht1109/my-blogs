@@ -1,7 +1,7 @@
 ---
 title: My lesson learned with distributed lock
 author: sonht1109
-date: 2024-09-01
+date: 2024-09-02
 description: Distributed lock really helps me to solve my issues, but it doesn't mean the issue will be solved immediately if I use distributed lock.
 tag:
   - distributed lock
@@ -127,4 +127,4 @@ I change the lock release time from `t1` to `t2`. But you may wonder, what shoul
 That's all I want to share. The lesson learned here is, should choose the lock release time carefully, it will save your life.
 
 ## Reference
-- [Redlock](https://www.youtube.com/watch?v=3uNsKNCegcM&list=LL&index=3&t=653s)
+- [Redlock](https://redis.io/docs/latest/develop/use/patterns/distributed-locks/)
