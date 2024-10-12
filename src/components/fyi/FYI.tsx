@@ -17,7 +17,7 @@ const theme: Record<Props["type"], { bgColor: string; borderColor: string }> = {
 };
 
 export default function InternalFYI(props: Props) {
-  const typeTheme = theme[props.type];
+  const typeTheme = theme[props.type || "info"];
 
   return (
     <div
