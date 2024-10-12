@@ -1,0 +1,271 @@
+---
+title: Which factor that mostly affects query performance?
+author: sonht1109
+date: 2024-10-10
+description: People tend to believe that, the query is slow just because the table has lots of rows and all they need is indexing. Is that always true? Or which factors that mostly decide how fast the query is?
+tag:
+  - database
+keywords:
+  - database
+  - performance
+---
+import { PhotoView } from 'react-photo-view'
+import FYI from '@/components/fyi'
+
+export const images = [
+"/images/which-factor-that-mostly-affect-query-performance-1.png",
+"/images/which-factor-that-mostly-affect-query-performance-2.png",
+"/images/which-factor-that-mostly-affect-query-performance-3.jpeg",
+];
+
+People tend to believe that, the query is slow just because the table has lots of rows and all they need is indexing. Is that always true? Or which factors that mostly decide how fast the query is?
+
+Let's talk more on this.
+
+<FYI>
+  <FYI.Container>
+    <ul>
+      <li>I'm using Postgres and DBeaver tool for this demo.</li>
+      <li>If you don't have Postgres installed on your machine, recommend using [Aiven](https://aiven.io/), it provides us free 5GB Postgres storage.</li>
+    </ul>
+  </FYI.Container>
+</FYI>
+
+## Number of total rows is "not" the X factor
+
+I will prove that the query is even slow on 0-row table.
+
+### Preparation
+
+I will create one table which has ~10M rows, enough for our demo.
+
+```sql copy
+create sequence tbl_large_seq start with 1 increment by 1;
+
+create table public.tbl_large (id bigserial, col1 varchar(30), col2 varchar(30), col3 varchar(30), col4 varchar(30), col5 varchar(30));
+
+BEGIN;
+DO $$
+  DECLARE
+    i INTEGER;
+  BEGIN
+    FOR i IN 1..10000000 LOOP
+      INSERT INTO tbl_large VALUES (nextval('tbl_large_seq'), 'Velit quis anim Lorem commodo', 'Velit quis anim Lorem commodo', 'Velit quis anim Lorem commodo', 'Velit quis anim Lorem commodo', 'Velit quis anim Lorem commodo');
+    END LOOP;
+  END $$;
+END;
+```
+
+And here we go, 10M rows are generated.
+```sql copy
+defaultdb=> select count(*) from tbl_large;
+  count   
+----------
+ 10000000
+(1 row)
+
+Time: 1397.477 ms (00:01.397)
+```
+
+Let's analyze this query to see more information.
+```sql {15,18} copy
+defaultdb=> explain (analyze) select count(*) from tbl_large;
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=394654.77..394654.78 rows=1 width=8) (actual time=1585.002..1606.791 rows=1 loops=1)
+   ->  Gather  (cost=394654.56..394654.77 rows=2 width=8) (actual time=1584.629..1606.761 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate  (cost=393654.56..393654.57 rows=1 width=8) (actual time=1545.612..1545.613 rows=1 loops=3)
+               ->  Parallel Seq Scan on tbl_large  (cost=0.00..361435.45 rows=12887645 width=0) (actual time=1.087..1204.728 rows=3333333 loops=3)
+ Planning Time: 0.087 ms
+ JIT:
+   Functions: 8
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.839 ms, Inlining 0.000 ms, Optimization 0.703 ms, Emission 20.039 ms, Total 21.581 ms
+ Execution Time: 1607.205 ms
+(12 rows)
+
+Time: 2751.751 ms (00:02.752)
+```
+
+Execution time is about 1.6s for 10M rows. Cool!
+
+I will create a new table called `tbl_small` with the same format but not insert any data in it.
+```sql copy
+create table public.tbl_small (id bigserial, col1 varchar(30), col2 varchar(30), col3 varchar(30), col4 varchar(30), col5 varchar(30));
+```
+
+```sql {7,10} copy
+defaultdb=> explain (analyze) select count(*) from tbl_small;
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=12.38..12.38 rows=1 width=8) (actual time=0.008..0.010 rows=1 loops=1)
+   ->  Seq Scan on tbl_small  (cost=0.00..11.90 rows=190 width=0) (actual time=0.005..0.005 rows=0 loops=1)
+ Planning Time: 0.096 ms
+ Execution Time: 0.042 ms
+(4 rows)
+
+Time: 217.026 ms
+```
+
+Excution time is about 0.034ms for 0 rows. Super fast, right?
+
+So it comes up with one question. If I **delete** all of rows of table `tbl_large`, can the query be fast as `tbl_small`?
+
+### The truth
+
+Before moving on, don't forget to turn off **autovacuum** on large table. Notice on `autovacuum_vacuum_threshold` value. We will discuss the reason later, but just don't forget this important step.
+```sql copy
+ALTER TABLE tbl_large SET (
+  autovacuum_vacuum_threshold = 20000000, -- set it larger than 10M (our total rows)
+  autovacuum_vacuum_scale_factor = 0.2,
+  autovacuum_analyze_threshold = 50,
+  autovacuum_analyze_scale_factor = 0.1
+);
+```
+
+Then, delete all rows of large table.
+```sql copy
+defaultdb=> delete from tbl_large where true;
+DELETE 10000000
+Time: 26555.155 ms (00:26.555)
+```
+
+Run the **ANALYZE** query again.
+```sql {15,18} copy
+defaultdb=> explain (analyze) select count(*) from tbl_large;
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=394654.77..394654.78 rows=1 width=8) (actual time=20007.000..20084.341 rows=1 loops=1)
+   ->  Gather  (cost=394654.56..394654.77 rows=2 width=8) (actual time=20003.087..20084.277 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate  (cost=393654.56..393654.57 rows=1 width=8) (actual time=19980.303..19980.306 rows=1 loops=3)
+               ->  Parallel Seq Scan on tbl_large  (cost=0.00..361435.45 rows=12887645 width=0) (actual time=19969.814..19969.815 rows=0 loops=3)
+ Planning Time: 0.158 ms
+ JIT:
+   Functions: 8
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.895 ms, Inlining 0.000 ms, Optimization 0.753 ms, Emission 30.708 ms, Total 32.356 ms
+ Execution Time: 20084.890 ms
+(12 rows)
+
+Time: 20301.996 ms (00:20.302)
+```
+
+Wait, 20s for this query??? Hmm, lemme run it again.
+```sql {15,18} copy
+defaultdb=> explain (analyze) select count(*) from tbl_large;
+                                                                   QUERY PLAN                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=394654.77..394654.78 rows=1 width=8) (actual time=1044.999..1070.158 rows=1 loops=1)
+   ->  Gather  (cost=394654.56..394654.77 rows=2 width=8) (actual time=1042.482..1070.096 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate  (cost=393654.56..393654.57 rows=1 width=8) (actual time=1019.319..1019.321 rows=1 loops=3)
+               ->  Parallel Seq Scan on tbl_large  (cost=0.00..361435.45 rows=12887645 width=0) (actual time=1013.990..1013.990 rows=0 loops=3)
+ Planning Time: 0.161 ms
+ JIT:
+   Functions: 8
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.796 ms, Inlining 0.000 ms, Optimization 0.782 ms, Emission 15.188 ms, Total 16.767 ms
+ Execution Time: 1070.639 ms
+(12 rows)
+
+Time: 1286.582 ms (00:01.287)
+```
+Much better now, but compare to `tbl_small`, it's still worse x200 times regarding execution time.
+
+## Page - The real X factor
+Run the query again on both 2 tables, but add `buffers` options.
+```sql /buffers/ {5} copy
+defaultdb=> explain (analyze, buffers) select count(*) from tbl_large;
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=2.39..2.40 rows=1 width=8) (actual time=4759.365..4759.368 rows=1 loops=1)
+   Buffers: shared read=259884
+   ->  Bitmap Heap Scan on tbl_large  (cost=1.38..2.39 rows=1 width=0) (actual time=4759.359..4759.360 rows=0 loops=1)
+         Heap Blocks: exact=38472 lossy=194087
+         Buffers: shared read=259884
+         ->  Bitmap Index Scan on tbl_large_pkey  (cost=0.00..1.38 rows=1 width=0) (actual time=670.478..670.479 rows=10000000 loops=1)
+               Buffers: shared read=27325
+ Planning Time: 0.082 ms
+ Execution Time: 4765.051 ms
+(9 rows)
+
+Time: 4980.912 ms (00:04.981)
+```
+
+```sql /buffers/ {7} copy
+defaultdb=> explain (analyze, buffers) select count(*) from tbl_small;
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=12.38..12.38 rows=1 width=8) (actual time=0.010..0.010 rows=1 loops=1)
+   ->  Seq Scan on tbl_small  (cost=0.00..11.90 rows=190 width=0) (actual time=0.005..0.005 rows=0 loops=1)
+ Planning:
+   Buffers: shared hit=1
+ Planning Time: 0.065 ms
+ Execution Time: 0.094 ms
+(6 rows)
+
+Time: 217.021 ms
+```
+
+Notice on `Buffers: shared` value. On large table, it receives `read=259884` and on small table, it receives `hit=1`. It means that:
+- `tbl_large` has to scan 27325 pages to return result
+- `tbl_small` has to scan 1 page to return result
+
+Obviously, querying on large table is worse than small one.
+
+But what exactly is **page** (or **block**)?
+
+<FYI>
+  <FYI.Container>
+    <i>"Pages are the smallest unit of storage that PostgreSQL uses to read from or write to disk. When a query requires accessing a table or index, PostgreSQL works with entire pages rather than individual rows or columns".</i>
+  </FYI.Container>
+</FYI>
+
+<FYI>
+  <FYI.Container>
+    We can call it either "page" or "block". They are the same.
+  </FYI.Container>
+</FYI>
+
+It means that, database stores your data in many pages (normally 8kb per page). One page contains many rows.
+<PhotoView src={images[0]}><img src={images[0]} alt="which factor mostly affects database performance" /></PhotoView>
+
+So in most cases where querying without indexes, database has to scan all of pages of table to find out your data (FULL TABLE SCAN). The more pages, the slower query is.
+
+Come back to our demo and compare the total scanned pages to see the difference on performance.
+
+## How can index help to improve query performance?
+Indexing is the most basic technique that is useful for query performance improvement. Of course, it doesn't mean that it is always faster if you use indexes but basically, how can index help us?
+
+When you create index, it will store index values in new pages and **organize** those values so that it can find out the page so quickly using some algorithm. Eg: B-Tree index organizes values in B-Tree so it can find out the page using tree traversal.
+
+=> Reduce pages that needs to be scanned.
+<PhotoView src={images[2]}><img src={images[2]} alt="which factor mostly affects database performance" /></PhotoView>
+
+## Conclusion
+Okay so we can say that, improving query performance is just trying to reduce the total pages to scan. Sounds easy but it's definitely not. That's it.
+
+## P/S
+On our demo, we already deleted all of rows in large table but why did query still have to scan so many blocks? Actually when we do delete rows, they are not actually deleted and freed disk space, they are just marked as **dead**. So the total pages are still the same, the consumed disk space is unchanged.
+
+Check those dead rows by executing query.
+```sql
+defaultdb=> SELECT pg_stat_get_live_tuples(c.oid) AS n_live_tup,
+pg_stat_get_dead_tuples(c.oid) AS n_dead_tup
+FROM pg_class c where relname = 'tbl_large';
+
+ n_live_tup | n_dead_tup 
+------------+------------
+          0 |   10000000
+(1 row)
+```
+
+To clean up dead rows and free disk space, **VACUUM** is the thing we need. We can execute **VACUUM** manually but normally database does it for us periodically (autovacuum). Autovacuum is triggered whenever dead rows reach a threshold, of course we did config that threshold to 20M on our demo to prevent autovacuum running and keep dead rows existing on disks.
+
+## Reference
+- [Wecommit](https://www.youtube.com/watch?v=xC1662uBym8&t=1024s)
