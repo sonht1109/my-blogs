@@ -175,9 +175,11 @@ Time: 217.021 ms
 
 Notice on `Buffers: shared` value. On large table, it receives `read=259884` and on small table, it receives `hit=1`. It means that:
 - `tbl_large` has to scan 27325 pages to return result
-- `tbl_small` has to scan 1 page to return result
+- `tbl_small` only has to scan 1 page to return result
 
-Total page of `tbl_large` is larger than `tbl_small`. Therefore, querying on large table takes more time than small one.
+We have difference on query performance due to difference on total pages.
+
+Is it not convincing enough? You can try it by yourself. Create a new table and insert 10M rows. Compare the total scanned pages before and after deletion. It should have the same total pages and therefore the query performance doesn't have any changes.
 
 But what exactly is **page** (or **block**)?
 
