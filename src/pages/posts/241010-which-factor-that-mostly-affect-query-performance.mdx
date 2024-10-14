@@ -31,9 +31,9 @@ So, let's find out the X factor that mostly decides how fast query is.
   </FYI.Container>
 </FYI>
 
-## Number of total rows is "not" the X factor
+## May "number of total rows" be the X factor
 
-I will prove that the query is even slow on 0-row table.
+Okay so checkout this demo.
 
 ### Preparation
 
@@ -177,6 +177,8 @@ Time: 1286.582 ms (00:01.287)
 ```
 Much better now, but compare to `tbl_small`, it's still worse x200 times regarding execution time.
 
+Okay now we got the answer: number of total rows is not the "X" factor.
+
 ## Page - The real X factor
 Run the query again on both 2 tables, but add `buffers` options.
 ```sql /buffers/ {5} copy
@@ -235,9 +237,33 @@ But what exactly is **page** (or **block**)?
 It means that, database stores your data in many pages (normally 8kb per page). One page contains many rows.
 <PhotoView src={images[0]}><img src={images[0]} alt="which factor mostly affects database performance" /></PhotoView>
 
-So in most cases where querying without indexes, database has to scan all of pages of table to find out your data (FULL TABLE SCAN). The more pages, the slower query is.
+Do a small query to check total pages of table.
+```sql copy
+defaultdb=> SELECT COUNT(DISTINCT(sub.block)) FROM (
+  SELECT (ctid::text::point)[0]::int AS block
+  FROM tbl_large
+) sub;
+ count  
+--------
+ 259884
+(1 row)
 
-Come back to our demo and compare the total scanned pages to see the difference on performance.
+Time: 12880.248 ms (00:12.880)
+```
+```sql copy
+defaultdb=> SELECT COUNT(DISTINCT(sub.block)) FROM (
+  SELECT (ctid::text::point)[0]::int AS block
+  FROM tbl_small
+) sub;
+ count 
+-------
+     0
+(1 row)
+
+Time: 236.990 ms
+```
+
+So in most cases where querying without indexes, database has to scan all of pages of table to find out your data (FULL TABLE SCAN). The more pages, the slower query is.
 
 ## How can index help to improve query performance?
 Indexing is the most basic technique that is useful for query performance improvement. Of course, it doesn't mean that it is always faster if you use indexes but basically, how can index help us?
