@@ -124,7 +124,7 @@ const config = {
       <CommentSection />
     </>
   ),
-  darkMode: false,
+  darkMode: true,
 };
 
 export default config;
