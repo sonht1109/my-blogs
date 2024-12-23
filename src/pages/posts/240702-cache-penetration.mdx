@@ -30,9 +30,9 @@ This is one simple way we often cache in our application.
 
 Whenever request comes, we will search in cache first. If existed, we return data. Otherwise, we will find in our database, and then **cache** it and return data. So every following request on the same resource will hit cache instead of our database.
 
-But let's imagine that when data is not found at cache, and data is not found in database as well.
+But let's imagine that when data is not found in cache, and data is not found in database as well.
 <PhotoView src={images[1]}><img src={images[1]} alt="new way to use css variable" /></PhotoView>
-The searched data is empty, and we may think "Oh it's empty, nothing to cache so just return to our client", so every following request on the same resource will hit our database and yep, that's the problem we have mentioned above.
+Since the queried data is empty, we may think that "Well no data? Nothing cache" and we just simply return data to client, then every following request on the same resource will hit our database and yep, that's the problem we have mentioned above.
 
 ## Solution
 
@@ -40,7 +40,7 @@ Easiest solution here is we will cache those **empty data** as well. Remember to
 <PhotoView src={images[2]}><img src={images[2]} alt="new way to use css variable" /></PhotoView>
 
 ## Conclusion
-Be aware of cache problems will help us build a better application. Hope this will help.
+This problem seems simple but we often don't care about it in real cases. Be aware of cache problems will help us to build a better application. So hope this post will help.
 
 ## Reference
 - [Tips Javascript](https://www.youtube.com/watch?v=_15A-fkBP7o)
