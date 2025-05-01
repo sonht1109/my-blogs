@@ -1,0 +1,83 @@
+---
+title: Postgres LATERAL - TIL
+author: sonht1109
+date: 2025-05-01
+description: I had never heard about Postgres LATERAL before until I saw it in my colleague's code
+tag:
+  - database
+  - postgres
+keywords:
+  - database
+  - lateral
+  - postgres
+---
+I had never heard about Postgres `LATERAL` before, until I saw it in my colleague's code. I spent some times doing researches to see how it worked.
+If you are reading this post, I would say that `LATERAL` will become super helpful for you.
+
+## What is LATERAL?
+
+This is one query with `LATERAL` you might see somewhere:
+```sql showLineNumbers /LATERAL/ /u.id/
+SELECT u.id as user_id, u.name as user_name,
+pu.title as post_title, pu.created_at as post_created_at
+FROM users u
+LEFT JOIN LATERAL (
+  SELECT * FROM posts p
+  WHERE p.user_id = u.id ORDER BY p.created_at LIMIT 1
+) pu on true;
+```
+
+|user_id|user_name|post_title|post_created_at|
+|-|-|-|-|
+|1|user A|How to become a senior|2025-05-01 12:00:00|
+|2|user B|Clean architechture|2025-05-01 09:00:00|
+|3|user C|K8s 101|2025-04-30 03:00:00|
+
+Basically, this query is to query all from `users`, with each user, we will get their 1 latest `posts`.
+Without `LATERAL`, we cannot reference to `u.id` inside subquery. With `LATERAL`, subquery can reference any columns which is introduces before `FROM`.
+It can be visualized like this:
+```
+users u
+  -> for each user
+      -> run subquery that depends on u
+```
+
+You can read more on [official docs](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-LATERAL) right here
+
+## Use cases
+
+Since `LATERAL` can be very useful in some cases:
+- explode array/json per row
+- get Top N results (in the example above I get top 1 posts of users)
+- ...
+
+For example, we can do `LATERAL` with `unnest` array. Let's add one more field into users table
+```sql
+ALTER TABLE users
+ADD COLUMN "hobbies" TEXT[] null;
+```
+Example data:
+|id|name|hobbies|
+|-|-|-|
+|1|user A|\{playing game, listening to music\}|
+|2|user B|\{climbing\}|
+|3|user C|\{studying, making cakes\}|
+
+Use `LATERAL` to unnest array:
+```sql
+SELECT u.id, u.name, hobby from users u
+LEFT JOIN LATERAL unnest(u.hobbies) as hooby on true;
+```
+|id|name|hobby|
+|-|-|-|
+|1|user A|playing game|
+|1|user A|listening to music|
+|2|user B|climbing|
+|3|user C|studying|
+|3|user C|making cakes|
+
+Also, you can check out [this post](https://amandasposito.com/postgresql/performance/2021/01/04/postgres-lateral-join.html) to see how we can replace `CTE` with `LATERAL` to boost up query performance.
+
+## References
+- [Postgres' lateral join, have you heard about it?](https://amandasposito.com/postgresql/performance/2021/01/04/postgres-lateral-join.html)
+- [PostgreSQL](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-LATERAL)
