@@ -16,7 +16,7 @@
     "@codesandbox/sandpack-react": "^2.10.0",
     "@vercel/analytics": "^1.1.1",
     "gray-matter": "^4.0.3",
-    "next": "13.1.1",
+    "next": "15.5.18",
     "nextra": "^2.13.2",
     "nextra-theme-blog": "^2.13.2",
     "react": "^18",
