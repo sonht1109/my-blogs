@@ -18,6 +18,7 @@ export const images = [
   "/images/patch-package-saves-our-life-1.png",
   "/images/patch-package-saves-our-life-2.png",
   "/images/patch-package-saves-our-life-3.png",
+  "/images/patch-package-saves-our-life-4.png",
 ];
 
 Have you ever needed to make quick fixes to your project's dependencies but then realized you couldn't modify them directly? This is where `patch-package` comes to the rescue.
@@ -40,7 +41,7 @@ Here's a basic usage:
 
 1. Install `patch-package`:
 ```bash
-npm install patch-package postinstall-postinstall --save-dev
+npm install patch-package --save-dev
 ```
 
 2. Make changes to a file inside `node_modules`. In this case, I modified the `stdnum` library to handle Thai national ID numbers with the prefix `0x`:
@@ -62,6 +63,10 @@ After run, a patch file will be created inside the `patches` directory in your p
   "postinstall": "patch-package"
 }
 ```
+
+Test the result again, it's working perfectly.
+
+<PhotoView src={images[3]}><img src={images[3]} alt="patch-package saves our life" /></PhotoView>
 
 Easy, right? Just a few steps and you can both use your dependencies and add your own fixes.
 
