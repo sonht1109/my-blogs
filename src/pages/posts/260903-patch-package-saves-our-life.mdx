@@ -1,0 +1,73 @@
+---
+title: patch-package saves our life - TIL
+author: sonht1109
+date: 2026-09-03
+description: Have you ever needed to make quick fixes to your project's dependencies but then realized you couldn't modify them directly? This is where `patch-package` comes to the rescue.
+tag:
+  - nodejs
+  - javascript
+keywords:
+  - nodejs
+  - javascript
+  - patch-package
+---
+
+import { PhotoView } from 'react-photo-view'
+
+export const images = [
+  "/images/patch-package-saves-our-life-1.png",
+  "/images/patch-package-saves-our-life-2.png",
+  "/images/patch-package-saves-our-life-3.png",
+];
+
+Have you ever needed to make quick fixes to your project's dependencies but then realized you couldn't modify them directly? This is where `patch-package` comes to the rescue.
+
+Long time no see. I'm too busy to adopt AI now, so no time for new posts hahaha. By the way, I have just known about `patch-package` recently from my leader. It's so kinda cool so that I need to share it here right away.
+
+## Situation
+
+In our case, we are using `stdnum` to validate Thai national ID numbers. But until we deployed, we just realized that, a lot of our users had IDs with prefix `0x`, which [is being treated as invalid](https://github.com/koblas/stdnum-js/blob/main/src/th/idnr.ts#L55) by the library.
+
+<PhotoView src={images[0]}><img src={images[0]} alt="patch-package saves our life" /></PhotoView>
+
+Too urgent to wait for the library to fix it, we needed a quick solution.
+
+## What is `patch-package`?
+
+`patch-package` is a tool that allows you to make and keep changes to your project's dependencies. Normally, you cannot directly modify the code inside `node_modules` because it will be overwritten whenever you reinstall your dependencies. `patch-package` solves this problem by creating patch files that are applied after every install.
+
+Here's a basic usage:
+
+1. Install `patch-package`:
+```bash
+npm install patch-package postinstall-postinstall --save-dev
+```
+
+2. Make changes to a file inside `node_modules`. In this case, I modified the `stdnum` library to handle Thai national ID numbers with the prefix `0x`:
+
+<PhotoView src={images[1]}><img src={images[1]} alt="patch-package saves our life" /></PhotoView>
+
+3. Run `patch-package` to create a patch file:
+```bash
+npx patch-package stdnum
+```
+
+After run, a patch file will be created inside the `patches` directory in your project.
+
+<PhotoView src={images[2]}><img src={images[2]} alt="patch-package saves our life" /></PhotoView>
+
+4. Add a `postinstall` script in your `package.json` to apply patches automatically after every install:
+```json
+"scripts": {
+  "postinstall": "patch-package"
+}
+```
+
+Easy, right? Just a few steps and you can both use your dependencies and add your own fixes.
+
+## Notes
+
+Just one small thing I'd recommend: it's better to lock the versions of your dependencies in `package.json` so that your patches remain compatible with the installed versions.
+
+## References
+- [patch-package](https://github.com/ds300/patch-package)
