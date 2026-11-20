@@ -1,0 +1,207 @@
+---
+title: 4 types of Postgres row-level locks - TIL
+author: sonht1109
+date: 2026-11-20
+description: FOR UPDATE is not the only row lock in Postgres. There are 4 of them - FOR KEY SHARE, FOR SHARE, FOR NO KEY UPDATE and FOR UPDATE. Let's see how they differ and when to use each one.
+tag:
+  - database
+  - postgres
+keywords:
+  - database
+  - postgres
+  - lock
+  - row-level lock
+  - select for update
+---
+
+For a long time, I only knew `SELECT ... FOR UPDATE`. Every time I needed to lock a row, I just used it. Then one day I saw `FOR NO KEY UPDATE` in a query and I was like "what is this?".
+It turns out Postgres has **4 types** of row-level locks, from weakest to strongest:
+
+1. `FOR KEY SHARE`
+2. `FOR SHARE`
+3. `FOR NO KEY UPDATE`
+4. `FOR UPDATE`
+
+Let's go through them one by one.
+
+## Setup
+
+We will use these 2 tables for all examples below:
+
+```sql
+CREATE TABLE accounts (
+  id      BIGSERIAL PRIMARY KEY,
+  email   TEXT UNIQUE NOT NULL,
+  balance NUMERIC NOT NULL DEFAULT 0
+);
+
+CREATE TABLE orders (
+  id         BIGSERIAL PRIMARY KEY,
+  account_id BIGINT NOT NULL REFERENCES accounts(id),
+  amount     NUMERIC NOT NULL
+);
+
+INSERT INTO accounts (email, balance) VALUES ('a@example.com', 100);
+```
+
+One important word before we start: **"key"**. In this context, key columns are columns that have a unique index which can be used by a foreign key.
+In `accounts`, `id` (primary key) and `email` (unique) are key columns. `balance` is not.
+
+Also note: a plain `SELECT` does not take any row lock. Thanks to MVCC, readers never block writers, and writers never block readers.
+Row locks only matter between writers and `SELECT ... FOR ...` queries.
+
+## FOR UPDATE
+
+The strongest one. It says: "I will change or delete this row, nobody else can touch it".
+
+```sql
+BEGIN;
+SELECT * FROM accounts WHERE id = 1 FOR UPDATE;
+-- other transactions cannot UPDATE, DELETE or lock this row with any mode
+```
+
+Postgres also takes this lock automatically when you:
+
+- `DELETE` a row
+- `UPDATE` a key column, for example `UPDATE accounts SET email = 'b@example.com' WHERE id = 1`
+
+**Use case**: you are going to delete the row, or change its primary key / unique column.
+
+## FOR NO KEY UPDATE
+
+Same as `FOR UPDATE`, but a bit weaker. It says: "I will change this row, but I will not touch its key columns".
+
+```sql
+BEGIN;
+SELECT * FROM accounts WHERE id = 1 FOR NO KEY UPDATE;
+UPDATE accounts SET balance = balance - 30 WHERE id = 1;
+COMMIT;
+```
+
+This is what a normal `UPDATE` takes automatically, if it does not change any key column. Yes, most of your `UPDATE` queries take this lock, not `FOR UPDATE`.
+
+The only difference from `FOR UPDATE`: it does **not** block `FOR KEY SHARE`. We will see why this matters in a minute.
+
+**Use case**: read-modify-write on non-key columns. For example: deduct balance, increase stock count, change status of a job.
+
+## FOR SHARE
+
+A shared lock. Many transactions can hold it on the same row at the same time. It says: "I am reading this row, nobody can change it until I finish".
+
+```sql
+BEGIN;
+SELECT * FROM accounts WHERE id = 1 FOR SHARE;
+-- other transactions can still FOR SHARE / FOR KEY SHARE this row
+-- but any UPDATE or DELETE on this row must wait
+```
+
+**Use case**: you read a row, and your logic depends on the value staying the same until you commit.
+For example: read the price and status of a product, then create an order with that price. You do not want someone to change the price in between.
+
+## FOR KEY SHARE
+
+The weakest one. It says: "I only care that this row exists and its key does not change. You can update other columns, I don't care".
+
+```sql
+BEGIN;
+SELECT * FROM accounts WHERE id = 1 FOR KEY SHARE;
+-- other transactions CAN update balance
+-- other transactions CANNOT delete this row or change id/email
+```
+
+Postgres takes this lock automatically on the **parent row** when you insert or update a child row with a foreign key.
+So `INSERT INTO orders (account_id, amount) VALUES (1, 50)` takes `FOR KEY SHARE` on `accounts.id = 1`. This makes sure nobody deletes the account while the order is being created.
+
+**Use case**: you need foreign-key-like protection without a real foreign key. For example, the relation is checked in code, or the tables are in different schemas that you cannot link.
+
+## Conflict table
+
+This is the most important part. `X` means the 2 locks conflict, so the second transaction must wait.
+
+| Requested \ Held      | FOR KEY SHARE | FOR SHARE | FOR NO KEY UPDATE | FOR UPDATE |
+| --------------------- | ------------- | --------- | ----------------- | ---------- |
+| **FOR KEY SHARE**     |               |           |                   | X          |
+| **FOR SHARE**         |               |           | X                 | X          |
+| **FOR NO KEY UPDATE** |               | X         | X                 | X          |
+| **FOR UPDATE**        | X             | X         | X                 | X          |
+
+Easy way to remember:
+
+- 2 `SHARE` locks never conflict with each other.
+- 2 `UPDATE` locks always conflict with each other.
+- `FOR UPDATE` conflicts with everything.
+- `FOR KEY SHARE` only conflicts with `FOR UPDATE`.
+
+## Why do we need 4 of them?
+
+Before Postgres 9.3, there were only 2 row locks: `FOR SHARE` and `FOR UPDATE`. Foreign key checks used `FOR SHARE` on the parent row.
+This caused a very annoying problem. Imagine these 2 sessions:
+
+```sql
+-- Session 1: create an order (FK check locks accounts.id = 1)
+BEGIN;
+INSERT INTO orders (account_id, amount) VALUES (1, 50);
+
+-- Session 2: update balance of the same account
+BEGIN;
+UPDATE accounts SET balance = balance + 10 WHERE id = 1;
+-- before 9.3: BLOCKED until session 1 commits
+```
+
+Session 2 does not touch `id` at all, it only changes `balance`. There is no reason for it to wait. But it did, because `FOR SHARE` blocks every `UPDATE`.
+In a busy system (many orders per account, frequent balance updates), this creates a lot of lock waits and even deadlocks.
+
+Since 9.3, Postgres split each lock into 2:
+
+- `FOR SHARE` -> `FOR KEY SHARE` (only protect the key) + `FOR SHARE`
+- `FOR UPDATE` -> `FOR NO KEY UPDATE` (do not change the key) + `FOR UPDATE`
+
+Now session 1 takes `FOR KEY SHARE`, session 2 takes `FOR NO KEY UPDATE`. From the table above, they do not conflict. Both run at the same time.
+
+But if session 2 runs `DELETE FROM accounts WHERE id = 1` or changes `email`, it needs `FOR UPDATE`, so it still waits. This is correct, because that would break the foreign key.
+
+## Lesson learned
+
+Now I see a common mistake in my own code:
+
+```sql
+BEGIN;
+SELECT * FROM accounts WHERE id = 1 FOR UPDATE;   -- too strong
+UPDATE accounts SET balance = balance - 30 WHERE id = 1;
+COMMIT;
+```
+
+I only change `balance`, so `FOR NO KEY UPDATE` is enough. With `FOR UPDATE`, I block every `INSERT INTO orders` for this account, for no reason.
+
+So the rule is: **take the weakest lock that is still correct.**
+
+| You want to...                                        | Use                 |
+| ----------------------------------------------------- | ------------------- |
+| Delete the row, or change PK/unique column            | `FOR UPDATE`        |
+| Update non-key columns (balance, status, count...)    | `FOR NO KEY UPDATE` |
+| Read and make sure the row does not change            | `FOR SHARE`         |
+| Only make sure the row still exists with the same key | `FOR KEY SHARE`     |
+
+## Bonus: NOWAIT and SKIP LOCKED
+
+All 4 modes support 2 extra options:
+
+- `NOWAIT`: do not wait, throw an error right away if the row is locked.
+- `SKIP LOCKED`: do not wait, just skip locked rows.
+
+`SKIP LOCKED` is very useful for a job queue. Many workers can pick jobs at the same time without stepping on each other:
+
+```sql
+SELECT * FROM jobs
+WHERE status = 'pending'
+ORDER BY created_at
+LIMIT 10
+FOR NO KEY UPDATE SKIP LOCKED;
+```
+
+If you want to see which row locks are held right now, try the [pgrowlocks](https://www.postgresql.org/docs/current/pgrowlocks.html) extension. Row locks are stored in the row itself, so you will not find most of them in `pg_locks`.
+
+## References
+
+- [PostgreSQL - Row-Level Locks](https://www.postgresql.org/docs/current/explicit-locking.html#LOCKING-ROWS)
+- [PostgreSQL - The Locking Clause](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE)
